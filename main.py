@@ -27,8 +27,8 @@ class WirewolfUI:
         self.style = Style(theme="darkly")
         # print(self.style)
         self.style.theme_use()
-        self.root.title('Wirewolf')
-        self.root.geometry('900x600')
+        self.root.title('Wirewolf')   # 为GUI窗口起名字
+        self.root.geometry('900x600')   # 窗口大小
 
         # print(self.style.theme_names())
         # style.theme_use("cosmo")
@@ -133,11 +133,7 @@ class WirewolfUI:
 
     def menuCommand(self):
         # 显示关于信息
-        Messagebox.ok(message='''
-    Wirewolf 网络嗅探器
-    Developed by Ephemeral1y
-                      ''',title="关于",alert=False)
-               
+        Messagebox.ok(message='''Wirewolf 网络嗅探器''',title="关于",alert=False)
 
     def session(self):
         # 打开以太网统计窗口
@@ -211,6 +207,7 @@ class WirewolfUI:
             font=("微软雅黑", 10),
         )
         self.label1.place(relx=0.01, rely=0.2)
+        print("success")
 
     def choose_iface(self):
         # 获取选择的网卡
@@ -224,19 +221,22 @@ class WirewolfUI:
     def create_packet_list_treeview(self):
         # 创建数据包列表的TreeView
         columns = ['序号', '时间', '源地址', '目标地址', '协议', '长度', '信息']
-        yscrollbar = ttkb.Scrollbar(self.stats_frame, bootstyle="info")
-        yscrollbar.pack(side=RIGHT, fill=Y)
+        # yscrollbar = ttkb.Scrollbar(self.stats_frame, bootstyle="info")
+        # yscrollbar = ttk.Scrollbar(self.stats_frame)
 
         self.table = treeview = ttk.Treeview(
-            master=self.stats_frame,  
-            height=6,  
-            columns=columns,  
-            show='headings',  
-            yscrollcommand=yscrollbar.set)
+            master=self.stats_frame,  # 表格的父容器
+            height=6,  # 表格的显示行数
+            columns=columns,  # 表格的列名
+            show='headings',  # 不显示表格的首列
+            # yscrollcommand=yscrollbar.set  # Y轴滚动条
+            )
         
-        yscrollbar['command'] = treeview.yview
+        # yscrollbar['command'] = treeview.yview  # 关联Y轴滚动条的滚动事件
 
+        # 绑定事件，当用户选择表格中的行时触发 self.on_select_packet_list 方法
         treeview.bind("<<TreeviewSelect>>", self.on_select_packet_list)
+        # 设置表格的列标题
         treeview.heading(column='序号', text='序号', anchor='center', command=lambda: print('序号'))  
         treeview.heading('时间', text='时间')  
         treeview.heading('源地址', text='源地址')  
@@ -391,7 +391,7 @@ class WirewolfUI:
             packet = self.packet_queue.get()
             time_show = datetime.fromtimestamp(packet.time).strftime('%Y-%m-%d %H:%M:%S')
             if IP in packet:
-                src = packet[IP].src
+                src = packet[ÍÍIP].src
                 dst = packet[IP].dst
             else:
                 src = packet.src
@@ -429,7 +429,9 @@ class WirewolfUI:
         self.tree_layer.column('#0', width=650, stretch=False)
         self.tree_layer.place(relx=0.0, rely=0.0)
 
-        scrollbar = ttkb.Scrollbar(self.analysis,bootstyle="info")
+        text_widget = tk.Text(root, wrap="none")
+        text_widget.pack(fill="both", expand=True)
+        scrollbar = tk.Scrollbar(self.root, command=text_widget.yview)
         scrollbar.pack(side=RIGHT, fill=Y)
         self.tree_layer['yscrollcommand'] = scrollbar.set
         scrollbar['command'] = self.tree_layer.yview
@@ -494,7 +496,8 @@ class WirewolfUI:
         font_example = tkFont.Font(size=12)
 
         self.hex_text.configure(font=font_example)
-        scrollbar = ttkb.Scrollbar(self.details,bootstyle="info")
+        # scrollbar = ttkb.Scrollbar(self.details,bootstyle="info")
+        scrollbar = tk.Scrollbar(self.root)
         scrollbar.pack(side=RIGHT, fill=Y)
 
         self.hex_text['yscrollcommand'] = scrollbar.set
@@ -505,5 +508,5 @@ class WirewolfUI:
 if __name__ == '__main__':
     root = tk.Tk()
     wirewolf = WirewolfUI(root)
-
+    # 启动了 Tkinter 的主事件循环，使窗口保持打开状态，等待用户的交互。
     wirewolf.root.mainloop()
